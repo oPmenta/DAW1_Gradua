@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="pt-BR" layout:decorate="~{layout/layoutpadrao}" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no" />
+    <title>Vacinas Pesquisadas</title>
+</head>
+
+<body>
+    <!-- conteudo principal -->
+    <main layout:fragment="conteudo" th:fragment="tabela" id="main" class="flex flex-col align-middle w-full m-10">
+
+        <h1 class="text-xl md:text-2xl">Vacinas Pesquisadas</h1>
+
+        <div class="flex flex-col md:w-2/3 mt-5">
+            <div class="overflow-x-auto">
+                <div class="min-w-full inline-block align-middle">
+                    <div class="border rounded-xl overflow-hidden shadow">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead>
+                                <tr>
+                                    <th scope="col" class="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase">Código</th>
+                                    <th scope="col" class="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase">Nome</th>
+                                    <th scope="col" class="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase">Descrição</th>
+                                    <th scope="col" colspan="2" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">Ação</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="vacina : ${vacinas}" class="odd:bg-white even:bg-gray-100 hover:bg-gray-200">
+                                    <td th:text="${vacina.codigo}" class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800">John Brown</td>
+                                    <td th:text="${vacina.nome}" class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">45</td>
+                                    <td th:text="${vacina.descricao}" class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">New York No. 1 Lake Park</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-end text-sm font-medium">
+                                        <a th:hx-get="@{/vacina/alterar/{codigo}(codigo=${vacina.codigo})}" class="cursor-pointer text-blue-600 hover:text-blue-500 decoration-2 hover:underline focus:outline-hidden focus:underline">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-fill" viewBox="0 0 16 16">
+                                                <path d="M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.5.5 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11z" />
+                                            </svg>
+                                        </a>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-end text-sm font-medium">
+                                        <button type="button" class="inline-flex items-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent text-red-600 hover:text-red-800 focus:outline-none focus:text-red-800 disabled:opacity-50 disabled:pointer-events-none">Delete</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <!-- !conteudo principal -->
+
+</body>
+
+</html>

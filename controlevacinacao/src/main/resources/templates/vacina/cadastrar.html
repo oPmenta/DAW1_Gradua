@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="pt-BR" layout:decorate="~{layout/layoutpadrao}" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no" />
+    <title>Cadastrar Vacina</title>
+</head>
+
+<body>
+    <!-- conteudo principal -->
+    <main layout:fragment="conteudo" th:fragment="formulario" id="main" class="flex flex-col align-middle w-full m-10">
+
+        <h1 class="text-xl md:text-2xl">Cadastrar Vacina</h1>
+
+        <form th:hx-post="@{/vacina/cadastrar}" th:object="${vacina}" class="w-2/3 mt-10">
+            <label for="nome" class="block text-gray-700 font-medium mb-2 mt-4">Nome</label>
+            <input type="text" th:field="*{nome}" class="w-1/2 py-3 px-4 text-gray-500 border-gray-300 rounded-lg focus:border-gray-500 focus:ring-gray-500 disabled:opacity-50 disabled:pointer-events-none" />
+            <label for="descricao" class="block text-gray-700 font-medium mb-2 mt-4">Descrição</label>
+            <input type="text" th:field="*{descricao}" class="w-1/2 py-3 px-4 text-gray-500 border-gray-300 rounded-lg focus:border-gray-500 focus:ring-gray-500 disabled:opacity-50 disabled:pointer-events-none" />
+            <div class="mt-5">
+                <button type="submit" class="py-3 px-4 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-blue-100 text-blue-800 hover:bg-blue-200 focus:outline-none focus:bg-blue-200 disabled:opacity-50 disabled:pointer-events-none">Cadastrar</button>
+            </div>
+        </form>
+    </main>
+    <!-- !conteudo principal -->
+
+</body>
+
+</html>
