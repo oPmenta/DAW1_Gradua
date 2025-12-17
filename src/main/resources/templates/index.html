@@ -9,30 +9,41 @@
 </head>
 
 <body>
-    <main layout:fragment="conteudo" id="main" class="flex flex-col align-middle justify-center w-full m-10">
+    <main layout:fragment="conteudo" id="main" class="flex flex-col items-center w-full pt-4">
 
+        <img src="../../static/images/LogoGradua.png" th:src="@{/images/LogoGradua.png}" alt="Logo Gradua"
+            class="h-32 w-32 md:h-48 md:w-48 mb-4" />
         <h1 class="text-2xl md:text-4xl text-center font-bold text-blue-600">
-            Bem-vindo ao Gradua 🎓
+            Gradua
         </h1>
 
-        <p class="text-center text-gray-600 mt-4 text-lg">
-            Sua plataforma de estudos gamificada. Prepare-se para o ENEM jogando!
+        <p class="text-center text-gray-600 mt-2 text-lg">
+            Prepare-se para o ENEM jogando!
         </p>
 
-        <div class="mt-5 grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="mt-5 flex flex-col items-center gap-4 w-full mb-10">
             <a th:href="@{/simulados}"
-                class="p-4 border rounded shadow-sm hover:bg-blue-50 transition cursor-pointer block text-blue-900">
-                <h3 class="font-bold text-xl">📚 Simulados</h3>
-                <p>Teste seus conhecimentos</p>
-            </a>
-
-            <a href="#"
-                class="p-4 border rounded shadow-sm hover:bg-yellow-50 transition cursor-pointer block text-yellow-900">
-                <h3 class="font-bold text-xl">🏆 Ranking</h3>
-                <p>Veja sua posição global</p>
+                class="w-96 p-6 border-2 border-blue-100 rounded-2xl shadow-lg bg-gray-100 hover:bg-blue-50 transition-all hover:scale-105 block text-blue-900 text-center">
+                <h3 class="font-bold text-2xl">📚 Simulados</h3>
+                <p class="text-base mt-2 opacity-80">Praticar questões do ENEM</p>
             </a>
         </div>
 
+        <div class="mt-5 flex flex-col items-center gap-4 w-full mb-10">
+            <a th:href="@{/ranking}"
+                class="w-96 p-6 border-2 border-yellow-100 rounded-2xl shadow-lg bg-gray-100 hover:bg-blue-50 transition-all hover:scale-105 block text-yellow-900 text-center">
+                <h3 class="font-bold text-2xl">🏆 Ranking</h3>
+                <p class="text-base mt-2 opacity-80">Ver sua classificação global</p>
+            </a>
+        </div>
+
+        <div class="mt-5 flex flex-col items-center gap-4 w-full mb-10">
+            <a th:href="@{/ranking}"
+                class="w-96 p-6 border-2 border-red-100 rounded-2xl shadow-lg bg-gray-100 hover:bg-blue-50 transition-all hover:scale-105 block text-red-900 text-center">
+                <h3 class="font-bold text-2xl">​📄 Relatório</h3>
+                <p class="text-base mt-2 opacity-80">Gerar relatórios de simulado</p>
+            </a>
+        </div>
     </main>
 </body>
 

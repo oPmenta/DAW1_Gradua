@@ -1,117 +1,117 @@
 package web.gradua.controller;
 
+import jakarta.servlet.http.HttpSession;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
+import web.gradua.model.*;
+import web.gradua.repository.*;
 
-import web.gradua.model.Questao;
-import web.gradua.model.Simulado;
-import web.gradua.repository.QuestaoRepository;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.time.LocalDateTime;
+import java.util.*;
 
 @Controller
 @RequestMapping("/simulados")
 public class SimuladoController {
 
     private final QuestaoRepository questaoRepository;
+    private final UsuarioRepository usuarioRepository;
+    
+    @Autowired
+    private ResultadoRepository resultadoRepository;
+    
+    @Autowired
+    private SimuladoRepository simuladoRepository;
 
-    public SimuladoController(QuestaoRepository questaoRepository) {
+    public SimuladoController(QuestaoRepository questaoRepository, UsuarioRepository usuarioRepository) {
         this.questaoRepository = questaoRepository;
+        this.usuarioRepository = usuarioRepository;
     }
 
     @GetMapping
-    public String gerarSimuladoAleatorio(Model model) {
-        // Busca TODAS as questões do banco de dados
+    public String gerarSimuladoAleatorio(Model model, HttpSession session) {
         List<Questao> todasQuestoes = questaoRepository.findAll();
-        
-        System.out.println("=================================================");
-        System.out.println("DIAGNÓSTICO: Iniciando busca de questões...");
-        System.out.println("TOTAL ENCONTRADO NO BANCO: " + todasQuestoes.size());
-        System.out.println("=================================================");
-        
-        if (todasQuestoes.isEmpty()) {
-            Questao qErro = new Questao();
-            qErro.setEnunciado("ERRO: Banco vazio. Verifique o DataLoader.");
-            qErro.setMateria("DEBUG");
-            qErro.setAlternativaA("Verifique o terminal");
-            todasQuestoes.add(qErro);
-        }
+        if (todasQuestoes.isEmpty()) return "redirect:/";
 
-        // Embaralha as questões
         Collections.shuffle(todasQuestoes);
+        int quantidade = Math.min(8, todasQuestoes.size());
+        List<Questao> selecionadas = todasQuestoes.subList(0, quantidade);
 
-        // Seleciona 8 questões, priorizando 1 de cada matéria
-        List<Questao> selecionadas = new ArrayList<>();
-        Set<String> materiasJaAdicionadas = new HashSet<>();
-
-        for (Questao q : todasQuestoes) {
-            if (selecionadas.size() >= 8) break;
-
-            if (!materiasJaAdicionadas.contains(q.getMateria())) {
-                selecionadas.add(q);
-                materiasJaAdicionadas.add(q.getMateria());
-            }
-        }
-
-        if (selecionadas.size() < 8) {
-            for (Questao q : todasQuestoes) {
-                if (selecionadas.size() >= 8) break;
-                if (!selecionadas.contains(q)) {
-                    selecionadas.add(q);
-                }
-            }
-        }
-
-        Simulado simuladoRapido = new Simulado();
-        simuladoRapido.setTitulo("Simulado Rápido - 8 Questões");
+        // 1. Criamos um Simulado ÚNICO para esta tentativa
+        Simulado novoSimulado = new Simulado();
+        novoSimulado.setTitulo("Simulado ENEM - " + LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")));
+        novoSimulado.setQuestoes(new ArrayList<>(selecionadas)); // Salva a lista de questões sorteadas
         
-        model.addAttribute("simulado", simuladoRapido);
-        model.addAttribute("questoesSorteada", selecionadas);
+        // 2. Persistimos o simulado no banco ANTES de começar a prova
+        novoSimulado = simuladoRepository.save(novoSimulado);
 
+        // 3. Guardamos o ID na sessão para recuperar no PostMapping
+        session.setAttribute("simuladoAtualId", novoSimulado.getId());
+
+        model.addAttribute("simulado", novoSimulado);
+        model.addAttribute("questoesSorteada", selecionadas);
         return "simulado/fazer_prova";
     }
 
     @PostMapping("/finalizar")
-    public String finalizarSimulado(@RequestParam Map<String, String> params, Model model) {
+    public String finalizarSimulado(@RequestParam Map<String, String> params, Model model, HttpSession session) {
         int acertos = 0;
+        int erros = 0;
+        
+        // StringBuilder para montar a String de respostas: "ID:MARCOU;ID:MARCOU"
+        StringJoiner respostasJoiner = new StringJoiner(";");
+
+        Usuario usuarioSessao = (Usuario) session.getAttribute("usuarioLogado");
+        Long simuladoId = (Long) session.getAttribute("simuladoAtualId");
+
+        // Se o simuladoId sumiu da sessão, redireciona (evita erros)
+        if (simuladoId == null) return "redirect:/simulados";
 
         for (Map.Entry<String, String> entry : params.entrySet()) {
-            String key = entry.getKey();   // Ex: resposta_15
-            String respostaAluno = entry.getValue(); // Ex: A
+            if (entry.getKey().startsWith("resposta_")) {
+                String idStr = entry.getKey().replace("resposta_", "");
+                String respAluno = entry.getValue();
 
-            if (key.startsWith("resposta_")) {
-                
-                try {
-                    Long questaoId = Long.parseLong(key.split("_")[1]);
-                    Questao questao = questaoRepository.findById(questaoId).orElse(null);
-                    
-                    if (questao != null) {
-                        String gabarito = questao.getGabarito(); 
+                // Guarda a escolha: "12:A"
+                respostasJoiner.add(idStr + ":" + respAluno);
 
-                        if (gabarito != null && gabarito.equalsIgnoreCase(respostaAluno)) {
-                            acertos++;
-                        } else if (gabarito == null) {
-                            System.out.println("AVISO: A questão ID " + questaoId + " não tem gabarito salvo no banco!");
-                        }
+                Questao q = questaoRepository.findById(Long.parseLong(idStr)).orElse(null);
+                if (q != null) {
+                    if (q.getGabarito() != null && q.getGabarito().equalsIgnoreCase(respAluno)) {
+                        acertos++;
+                    } else if (respAluno != null && !respAluno.isEmpty()) {
+                        erros++;
                     }
-                } catch (Exception e) {
-                    System.out.println("Erro ao corrigir questão: " + key + ". Detalhe: " + e.getMessage());
                 }
             }
         }
 
+        double pontuacaoFinal = Math.max(0, acertos - erros);
+
+        if (usuarioSessao != null) {
+            Usuario usuarioReal = usuarioRepository.findById(usuarioSessao.getIdUsuario()).orElse(null);
+            Simulado simuladoReal = simuladoRepository.findById(simuladoId).orElse(null);
+
+            if (usuarioReal != null && simuladoReal != null) {
+                Resultado res = new Resultado();
+                res.setUsuario(usuarioReal);
+                res.setSimulado(simuladoReal); // Aqui salvamos qual foi o conjunto de questões
+                res.setAcertos(acertos);
+                res.setTotalQuestoes(8);
+                res.setPontuacao(pontuacaoFinal);
+                res.setRealizadoEm(LocalDateTime.now());
+                
+                // Salvamos o rastro das respostas para o PDF comparar com o gabarito depois
+                res.setStatus(respostasJoiner.toString()); 
+                
+                resultadoRepository.save(res);
+            }
+        }
+
         model.addAttribute("acertos", acertos);
-        model.addAttribute("total", 8);
-        
+        model.addAttribute("erros", erros);
+        model.addAttribute("pontuacao", (int) pontuacaoFinal);
         return "simulado/resultado";
     }
 }

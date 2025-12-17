@@ -14,9 +14,14 @@ public class Resultado {
 
     private Double pontuacao;
     private Integer acertos;
+
+    @Column(name = "total_questoes")
     private Integer totalQuestoes;
-    private String status; 
+
+    @Column(name = "realizado_em")
     private LocalDateTime realizadoEm;
+    
+    private String status;
 
     @ManyToOne
     @JoinColumn(name = "id_usuario")
@@ -27,20 +32,67 @@ public class Resultado {
     private Simulado simulado;
 
     // Getters e Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
-    public Double getPontuacao() { return pontuacao; }
-    public void setPontuacao(Double pontuacao) { this.pontuacao = pontuacao; }
-    public Integer getAcertos() { return acertos; }
-    public void setAcertos(Integer acertos) { this.acertos = acertos; }
-    public Integer getTotalQuestoes() { return totalQuestoes; }
-    public void setTotalQuestoes(Integer totalQuestoes) { this.totalQuestoes = totalQuestoes; }
-    public String getStatus() { return status; }
-    public void setStatus(String status) { this.status = status; }
-    public LocalDateTime getRealizadoEm() { return realizadoEm; }
-    public void setRealizadoEm(LocalDateTime realizadoEm) { this.realizadoEm = realizadoEm; }
-    public Usuario getUsuario() { return usuario; }
-    public void setUsuario(Usuario usuario) { this.usuario = usuario; }
-    public Simulado getSimulado() { return simulado; }
-    public void setSimulado(Simulado simulado) { this.simulado = simulado; }
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Double getPontuacao() {
+        return pontuacao;
+    }
+
+    public void setPontuacao(Double pontuacao) {
+        this.pontuacao = pontuacao;
+    }
+
+    public Integer getAcertos() {
+        return acertos;
+    }
+
+    public void setAcertos(Integer acertos) {
+        this.acertos = acertos;
+    }
+
+    public Integer getTotalQuestoes() {
+        return totalQuestoes;
+    }
+
+    public void setTotalQuestoes(Integer totalQuestoes) {
+        this.totalQuestoes = totalQuestoes;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public LocalDateTime getRealizadoEm() {
+        return realizadoEm;
+    }
+
+    public void setRealizadoEm(LocalDateTime realizadoEm) {
+        this.realizadoEm = realizadoEm;
+    }
+
+    public Usuario getUsuario() {
+        return usuario;
+    }
+
+    public void setUsuario(Usuario usuario) {
+        this.usuario = usuario;
+    }
+
+    public Simulado getSimulado() {
+        return simulado;
+    }
+
+    public void setSimulado(Simulado simulado) {
+        this.simulado = simulado;
+    }
 }

@@ -28,12 +28,28 @@ public class DataLoader {
 
             if (usuarioRepository.count() == 0) {
                 Usuario admin = new Usuario();
-                admin.setNome("Professor Admin");
+                admin.setNome("Admin");
                 admin.setEmail("admin@gradua.com");
                 admin.setSenha("admin");
                 admin.setTipo("ADMIN");
                 usuarioRepository.save(admin);
                 System.out.println("Usuário Admin criado.");
+
+                Usuario estudante01 = new Usuario();
+                estudante01.setNome("Thiago");
+                estudante01.setEmail("thiago@gradua.com");
+                estudante01.setSenha("123");
+                estudante01.setTipo("PADRAO");
+                usuarioRepository.save(estudante01);
+                System.out.println("Usuário Thiago criado.");
+
+                Usuario estudante02 = new Usuario();
+                estudante02.setNome("Yuri");
+                estudante02.setEmail("yuri@gradua.com");
+                estudante02.setSenha("123");
+                estudante02.setTipo("PADRAO");
+                usuarioRepository.save(estudante02);
+                System.out.println("Usuário Yuri criado.");
             }
 
             if (simuladoRepository.count() == 0) {

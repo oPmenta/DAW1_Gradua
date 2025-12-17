@@ -1,9 +1,10 @@
 <div th:fragment="header">
     <header class="flex items-center justify-between bg-gray-800 p-4 shadow-lg border-b border-gray-700">
-        
+
         <div>
             <div class="md:hidden">
-                <button id="menu-btn" type="button" class="hamburger z-40 block focus:outline-none md:hidden text-gray-300">
+                <button id="menu-btn" type="button"
+                    class="hamburger z-40 block focus:outline-none md:hidden text-gray-300">
                     <span class="hamburger-top"></span>
                     <span class="hamburger-middle"></span>
                     <span class="hamburger-bottom"></span>
@@ -11,63 +12,66 @@
             </div>
 
             <a th:href="@{/}" class="flex items-center space-x-3">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-8 w-8 text-blue-400 md:h-12 md:w-12">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.499 5.24 50.552 50.552 0 00-2.658.813m-15.482 0A50.55 50.55 0 0112 13.489a50.55 50.55 0 016.741-2.662m-6.741 2.122A50.55 50.55 0 0112 20.904a50.55 50.55 0 01-5.259-3.753m10.518 0V18.75a.75.75 0 00.22-.53V14.625" />
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                    stroke="currentColor" class="h-8 w-8 text-blue-400 md:h-12 md:w-12">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.499 5.24 50.552 50.552 0 00-2.658.813m-15.482 0A50.55 50.55 0 0112 13.489a50.55 50.55 0 016.741-2.662m-6.741 2.122A50.55 50.55 0 0112 20.904a50.55 50.55 0 01-5.259-3.753m10.518 0V18.75a.75.75 0 00.22-.53V14.625" />
                 </svg>
-                
+
                 <div class="text-xl font-bold text-white tracking-wide md:text-3xl">
                     Gradua <span class="text-blue-400 text-sm align-top">Beta</span>
                 </div>
             </a>
         </div>
-        
-        <div class="hidden items-center md:flex space-x-4"> 
-            
+
+        <div class="hidden items-center md:flex space-x-4">
+
             <form th:action="@{/simulacao/selecionar-usuario}" method="post" class="flex items-center space-x-2">
-                <label for="user-select" class="text-sm text-gray-400">Simular Acesso:</label>
-                <select 
-                    id="user-select" 
-                    name="usuarioId" 
-                    onchange="this.form.submit()" 
-                    class="rounded-lg bg-gray-700 p-2 text-white text-sm focus:ring-blue-500 focus:border-blue-500"
-                >
-                    <option value="0">-- Usuário Desconectado --</option>
-                    
-                    <option 
-                        th:each="user : ${todosUsuarios}" 
-                        th:value="${user.id}" 
-                        th:text="${user.nome} + ' (' + ${user.tipo} + ')'"
-                        
-                        th:selected="${usuarioLogado != null and user.id == usuarioLogado.id}">
+                <label class="text-xs text-gray-400">Login:</label>
+                <select name="usuarioId" onchange="this.form.submit()"
+                    class="rounded bg-gray-700 text-white text-xs p-1">
+                    <option value="0">Visitante</option>
+
+                    <option th:each="user : ${todosUsuarios ?: {}}" th:value="${user.idUsuario}" th:text="${user.nome}"
+                        th:selected="${session.usuarioLogado?.idUsuario == user.idUsuario}">
                     </option>
                 </select>
             </form>
-            
+
             <div class="text-sm text-gray-300 md:text-xl border-l pl-4 border-gray-600">
-                <span th:if="${usuarioLogado}" th:text="'Bem-vindo, ' + ${usuarioLogado.nome}">Bem-vindo, Usuário!</span>
+                <span th:if="${usuarioLogado}" th:text="'Bem-vindo, ' + ${usuarioLogado.nome}">Bem-vindo,
+                    Usuário!</span>
                 <span th:unless="${usuarioLogado}">Acesso Livre (Visitante)</span>
             </div>
         </div>
-        
+
         <div class="mr-1 text-gray-300 md:hidden">
             <button id="menu-usuario-btn" type="button" class="block focus:outline-none">
-              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-person-circle" viewBox="0 0 16 16">
-                <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/>
-                <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z"/>
-              </svg>
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor"
+                    class="bi bi-person-circle" viewBox="0 0 16 16">
+                    <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z" />
+                    <path fill-rule="evenodd"
+                        d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z" />
+                </svg>
             </button>
-          </div>
-          
+        </div>
+
     </header>
 
-    <div id="menu" class="absolute bottom-0 left-0 top-0 hidden min-h-screen w-full flex-col space-y-3 self-end bg-gray-900 py-1 pl-12 pt-40 text-lg text-gray-400 opacity-95 z-30">
+    <div id="menu"
+        class="absolute bottom-0 left-0 top-0 hidden min-h-screen w-full flex-col space-y-3 self-end bg-gray-900 py-1 pl-12 pt-40 text-lg text-gray-400 opacity-95 z-30">
         <th:block th:replace="~{layout/fragments/menu :: menu}"></th:block>
     </div>
 
-    <div id="menu-usuario" class="absolute bottom-0 left-0 top-0 hidden min-h-screen w-full flex-col items-end space-y-3 self-end bg-gray-900 py-1 pr-12 pt-20 text-lg text-gray-400 opacity-95 z-30">
+    <div id="menu-usuario"
+        class="absolute bottom-0 left-0 top-0 hidden min-h-screen w-full flex-col items-end space-y-3 self-end bg-gray-900 py-1 pr-12 pt-20 text-lg text-gray-400 opacity-95 z-30">
         <div class="text-white text-xl font-bold mb-4">Área do Aluno</div>
         <div class="text-gray-300">Visitante</div>
-        <a th:href="@{/login}" class="w-full text-right rounded-lg border border-blue-500 text-blue-400 px-4 py-2 hover:bg-blue-600 hover:text-white transition"> Login </a>
-        <a th:href="@{/cadastro}" class="w-full text-right rounded-lg border border-green-500 text-green-400 px-4 py-2 hover:bg-green-600 hover:text-white transition"> Criar Conta </a>
+        <a th:href="@{/login}"
+            class="w-full text-right rounded-lg border border-blue-500 text-blue-400 px-4 py-2 hover:bg-blue-600 hover:text-white transition">
+            Login </a>
+        <a th:href="@{/cadastro}"
+            class="w-full text-right rounded-lg border border-green-500 text-green-400 px-4 py-2 hover:bg-green-600 hover:text-white transition">
+            Criar Conta </a>
     </div>
 </div>
