@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="pt-BR" layout:decorate="~{layout/layoutpadrao}" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no" />
+    <title>Mostrar Lotes</title>
+</head>
+
+<body>
+    <!-- conteudo principal -->
+    <main layout:fragment="conteudo" id="main" class="flex flex-col align-middle w-full m-10">
+
+        <h1 class="text-xl md:text-2xl">Lotes Pesquisados</h1>
+
+        <h1 th:if="${#lists.isEmpty(lotes)}" class="text-lg md:text-xl mt-5">Não foram encontrados lotes nessa pesquisa</h1>
+
+        <th:block th:fragment="lista">
+            <li th:each="lote : ${lotes}" class="p-2 hover:bg-gray-100 cursor-pointer" th:data-value="${lote.codigo}" th:text="${lote.vacina.nome + ' - ' + lote.nroDosesAtual + ' doses - ' + lote.validade}">
+                Option Text
+            </li>
+        </th:block>
+
+    </main>
+    <!-- !conteudo principal -->
+
+</body>
+
+</html>

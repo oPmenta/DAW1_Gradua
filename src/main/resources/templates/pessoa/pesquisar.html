@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="pt-BR" layout:decorate="~{layout/layoutpadrao}" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no" />
+    <title>Pesquisar Pessoa</title>
+</head>
+
+<body>
+    <!-- conteudo principal -->
+    <main layout:fragment="conteudo" th:fragment="formulario" id="main" class="flex flex-col align-middle w-full m-10">
+
+        <h1 class="text-xl md:text-2xl">Pesquisar Vacina</h1>
+        <form th:hx-get="@{/pessoa/pesquisar}" class="w-full md:w-1/2 mt-10">
+            <div th:replace="~{layout/fragments/forms :: inputSimples('Código', 'codigo', 'number')}"></div>
+            <div th:replace="~{layout/fragments/forms :: inputSimples('Nome', 'nome', 'text')}"></div>
+            <div th:replace="~{layout/fragments/forms :: inputSimples('CPF', 'cpf', 'text')}"></div>
+            <div class="flex gap-x-6">
+                <div class="flex-1">
+                    <div th:replace="~{layout/fragments/forms :: inputSimples('Nascimento Inicial', 'dataNascimentoInicial', 'data')}"></div>
+                </div>
+                <div class="flex-1">
+                    <div th:replace="~{layout/fragments/forms :: inputSimples('Nascimento Final', 'dataNascimentoFinal', 'data')}"></div>
+                </div>
+            </div>
+            <div class="mt-4">
+                <button type="submit" class="py-3 px-4 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-teal-100 text-teal-800 hover:bg-teal-200 focus:outline-none focus:bg-teal-200 disabled:opacity-50 disabled:pointer-events-none">Pesquisar</button>
+            </div>
+        </form>
+
+        <div th:if="${notificacao != null}" th:object="${notificacao}">
+            <input type="hidden" id="mensagemSA2" th:value="*{mensagem}">
+            <input type="hidden" id="tipoSA2" th:value="*{tipo}">
+            <input type="hidden" id="intervaloSA2" th:value="*{intervalo}">
+        </div>
+    </main>
+    <!-- !conteudo principal -->
+
+</body>
+
+</html>

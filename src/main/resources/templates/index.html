@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="pt-BR" layout:decorate="~{layout/layoutpadrao}" xmlns:th="http://www.thymeleaf.org"
+    xmlns:layout="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no" />
+    <title>Gradua - Início</title>
+</head>
+
+<body>
+    <main layout:fragment="conteudo" id="main" class="flex flex-col align-middle justify-center w-full m-10">
+
+        <h1 class="text-2xl md:text-4xl text-center font-bold text-blue-600">
+            Bem-vindo ao Gradua 🎓
+        </h1>
+
+        <p class="text-center text-gray-600 mt-4 text-lg">
+            Sua plataforma de estudos gamificada. Prepare-se para o ENEM jogando!
+        </p>
+
+        <div class="mt-5 grid grid-cols-1 md:grid-cols-2 gap-4">
+            <a th:href="@{/simulados}"
+                class="p-4 border rounded shadow-sm hover:bg-blue-50 transition cursor-pointer block text-blue-900">
+                <h3 class="font-bold text-xl">📚 Simulados</h3>
+                <p>Teste seus conhecimentos</p>
+            </a>
+
+            <a href="#"
+                class="p-4 border rounded shadow-sm hover:bg-yellow-50 transition cursor-pointer block text-yellow-900">
+                <h3 class="font-bold text-xl">🏆 Ranking</h3>
+                <p>Veja sua posição global</p>
+            </a>
+        </div>
+
+    </main>
+</body>
+
+</html>
