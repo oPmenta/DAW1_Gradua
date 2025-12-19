@@ -21,8 +21,8 @@ public class RankingController {
         // Busca todos os usuários e ordena pela soma das pontuações de seus resultados
         List<Usuario> ranking = usuarioRepository.findAll().stream()
             .sorted((u1, u2) -> {
-                Double totalU1 = u1.getResultados().stream().mapToDouble(r -> r.getPontuacao()).sum();
-                Double totalU2 = u2.getResultados().stream().mapToDouble(r -> r.getPontuacao()).sum();
+                Integer totalU1 = u1.getResultados().stream().mapToInt(r -> r.getPontuacao()).sum();
+                Integer totalU2 = u2.getResultados().stream().mapToInt(r -> r.getPontuacao()).sum();
                 return totalU2.compareTo(totalU1); // Ordem decrescente
             })
             .collect(Collectors.toList());

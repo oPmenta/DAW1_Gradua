@@ -1,15 +1,13 @@
 package web.gradua.model;
 
 import jakarta.persistence.*;
+import java.io.Serializable; // <--- ADICIONE ESTE IMPORT
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-public class Usuario {
-
-    // Constantes para facilitar a verificação de tipo
-    public static final String PADRAO = "PADRAO";
-    public static final String ADMIN = "ADMIN";
+public class Usuario implements Serializable { // <--- ADICIONE O IMPLEMENTS
+    private static final long serialVersionUID = 1L; // <--- BOA PRÁTICA
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

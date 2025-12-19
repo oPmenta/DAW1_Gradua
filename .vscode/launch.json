@@ -9,6 +9,16 @@
             "projectName": "controlevacinacao",
             "args": "",
             "envFile": "${workspaceFolder}/.env"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-GraduaApplication<controlevacinacao>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "web.gradua.GraduaApplication",
+            "projectName": "controlevacinacao",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
         }
     ]
 }

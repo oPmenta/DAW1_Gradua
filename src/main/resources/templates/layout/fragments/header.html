@@ -26,22 +26,22 @@
 
         <div class="hidden items-center md:flex space-x-4">
 
-            <form th:action="@{/simulacao/selecionar-usuario}" method="post" class="flex items-center space-x-2">
+            <form th:if="${todosUsuarios != null}" th:action="@{/simulados/selecionar-usuario}" method="post"
+                class="flex items-center space-x-2">
                 <label class="text-xs text-gray-400">Login:</label>
                 <select name="usuarioId" onchange="this.form.submit()"
                     class="rounded bg-gray-700 text-white text-xs p-1">
                     <option value="0">Visitante</option>
-
-                    <option th:each="user : ${todosUsuarios ?: {}}" th:value="${user.idUsuario}" th:text="${user.nome}"
-                        th:selected="${session.usuarioLogado?.idUsuario == user.idUsuario}">
+                    <option th:each="user : ${todosUsuarios}" th:value="${user.idUsuario}" th:text="${user.nome}"
+                        th:selected="${session.usuarioLogado != null && session.usuarioLogado.idUsuario == user.idUsuario}">
                     </option>
                 </select>
             </form>
 
             <div class="text-sm text-gray-300 md:text-xl border-l pl-4 border-gray-600">
-                <span th:if="${usuarioLogado}" th:text="'Bem-vindo, ' + ${usuarioLogado.nome}">Bem-vindo,
-                    Usuário!</span>
-                <span th:unless="${usuarioLogado}">Acesso Livre (Visitante)</span>
+                <span th:if="${session.usuarioLogado != null}"
+                    th:text="'Bem-vindo, ' + ${session.usuarioLogado.nome}">Bem-vindo!</span>
+                <span th:unless="${session.usuarioLogado != null}">Acesso Livre (Visitante)</span>
             </div>
         </div>
 
@@ -66,7 +66,12 @@
     <div id="menu-usuario"
         class="absolute bottom-0 left-0 top-0 hidden min-h-screen w-full flex-col items-end space-y-3 self-end bg-gray-900 py-1 pr-12 pt-20 text-lg text-gray-400 opacity-95 z-30">
         <div class="text-white text-xl font-bold mb-4">Área do Aluno</div>
-        <div class="text-gray-300">Visitante</div>
+
+        <div class="text-gray-300"
+            th:text="${session.usuarioLogado != null ? session.usuarioLogado.nome : 'Visitante'}">
+            Visitante
+        </div>
+
         <a th:href="@{/login}"
             class="w-full text-right rounded-lg border border-blue-500 text-blue-400 px-4 py-2 hover:bg-blue-600 hover:text-white transition">
             Login </a>
