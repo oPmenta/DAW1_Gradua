@@ -19,11 +19,7 @@ public class RelatorioService {
 
     public byte[] gerarRelatorioPDF(Long idResultado) {
         Map<String, Object> parametros = new HashMap<>();
-        // O NOME AQUI DEVE SER IGUAL AO DO JASPERSOFT STUDIO
         parametros.put("ID_RESULTADO", idResultado);
-
-        // ATENÇÃO: Verifique se a pasta é "relatorios" ou "reports"
-        // E se o arquivo é "simulado.jasper"
         return jaspersoftUtil.gerarRelatorio("/relatorios/simulado.jasper", parametros, dataSource);
     }
 }

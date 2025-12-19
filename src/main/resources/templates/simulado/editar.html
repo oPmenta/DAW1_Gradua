@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="pt-BR" layout:decorate="~{layout/layoutpadrao}" xmlns:th="http://www.thymeleaf.org"
+    xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+    <meta charset="UTF-8" />
+    <title>Editar Simulado</title>
+</head>
+<body>
+    <main layout:fragment="conteudo" class="flex flex-col items-center w-full pt-10 px-4">
+        <div class="w-full max-w-md bg-white rounded-2xl shadow-xl border border-blue-100 p-8">
+            <h1 class="text-xl font-bold text-blue-600 mb-4 text-center">Editar Nome do Simulado</h1>
+            
+            <form th:action="@{/simulados/editar/{id}(id=${resultado.id})}" method="post">
+                <label class="block text-gray-700 font-bold mb-2">Novo Título:</label>
+                <input type="text" name="titulo" th:value="${resultado.simulado.titulo}" required
+                       class="w-full p-3 border rounded mb-6 bg-gray-50">
+                
+                <div class="flex justify-between">
+                    <a th:href="@{/simulados/historico}" class="text-gray-500 py-2">Cancelar</a>
+                    <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded font-bold">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </main>
+</body>
+</html>

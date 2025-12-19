@@ -21,140 +21,156 @@ import java.util.*;
 @RequestMapping("/simulados")
 public class SimuladoController {
 
-    @Autowired
-    private QuestaoRepository questaoRepository;
-    @Autowired
-    private UsuarioRepository usuarioRepository;
-    @Autowired
-    private RespostaRepository respostaRepository;
-    @Autowired
-    private ResultadoRepository resultadoRepository;
-    @Autowired
-    private SimuladoRepository simuladoRepository;
-    @Autowired
-    private RelatorioService relatorioService;
+    @Autowired private QuestaoRepository questaoRepository;
+    @Autowired private UsuarioRepository usuarioRepository;
+    @Autowired private RespostaRepository respostaRepository;
+    @Autowired private ResultadoRepository resultadoRepository;
+    @Autowired private SimuladoRepository simuladoRepository;
+    @Autowired private RelatorioService relatorioService;
 
-    // MÉTODO NOVO PARA CORRIGIR O ERRO DO DROPDOWN NO HEADER
+    // --- MÉTODOS BASICOS (Copiados do seu original) ---
+
     @PostMapping("/selecionar-usuario")
     public String selecionarUsuario(@RequestParam("usuarioId") Long usuarioId, HttpSession session) {
-        if (usuarioId == null || usuarioId == 0) {
-            session.removeAttribute("usuarioLogado");
-        } else {
-            // Busca o usuário no banco e salva na sessão
-            Usuario usuario = usuarioRepository.findById(usuarioId).orElse(null);
-            session.setAttribute("usuarioLogado", usuario);
-        }
-        return "redirect:/"; // Redireciona para a home após a troca
+        if (usuarioId == null || usuarioId == 0) session.removeAttribute("usuarioLogado");
+        else session.setAttribute("usuarioLogado", usuarioRepository.findById(usuarioId).orElse(null));
+        return "redirect:/";
     }
 
     @GetMapping
     public String gerarSimuladoAleatorio(Model model, HttpSession session) {
-        List<Questao> todasQuestoes = questaoRepository.findAll();
-        if (todasQuestoes.isEmpty())
-            return "redirect:/";
+        List<Questao> todas = questaoRepository.findAll();
+        if (todas.isEmpty()) return "redirect:/";
+        Collections.shuffle(todas);
+        
+        Simulado s = new Simulado();
+        s.setTitulo("Simulado - " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM HH:mm")));
+        s.setQuestoes(new ArrayList<>(todas.subList(0, Math.min(8, todas.size()))));
 
-        Collections.shuffle(todasQuestoes);
-        List<Questao> selecionadas = todasQuestoes.subList(0, Math.min(8, todasQuestoes.size()));
-
-        Simulado novoSimulado = new Simulado();
-        novoSimulado.setTitulo(
-                "Simulado ENEM - " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")));
-        novoSimulado.setQuestoes(new ArrayList<>(selecionadas));
-        novoSimulado = simuladoRepository.save(novoSimulado);
-
-        session.setAttribute("simuladoAtualId", novoSimulado.getId());
-        model.addAttribute("simulado", novoSimulado);
-        model.addAttribute("questoesSorteada", selecionadas);
+        if (session.getAttribute("usuarioLogado") != null) s = simuladoRepository.save(s);
+        
+        session.setAttribute("simuladoAtual", s);
+        model.addAttribute("simulado", s);
+        model.addAttribute("questoesSorteada", s.getQuestoes());
         return "simulado/fazer_prova";
     }
 
     @PostMapping("/finalizar")
-    public String finalizarSimulado(@RequestParam Map<String, String> params, Model model, HttpSession session) {
-        Usuario usuarioSessao = (Usuario) session.getAttribute("usuarioLogado");
-        Long simuladoId = (Long) session.getAttribute("simuladoAtualId");
+    public String finalizar(@RequestParam Map<String, String> params, Model model, HttpSession session) {
+        Usuario u = (Usuario) session.getAttribute("usuarioLogado");
+        Simulado s = (Simulado) session.getAttribute("simuladoAtual");
+        if (s == null) return "redirect:/simulados";
 
-        if (usuarioSessao == null || simuladoId == null)
-            return "redirect:/login";
+        Resultado r = new Resultado();
+        r.setSimulado(s);
+        r.setRealizadoEm(LocalDateTime.now());
+        r.setTotalQuestoes(8);
+        
+        int acertos = 0, erros = 0;
+        for (String key : params.keySet()) {
+            if (key.startsWith("resposta_")) {
+                Questao q = questaoRepository.findById(Long.parseLong(key.replace("resposta_", ""))).orElse(null);
+                if (q != null) {
+                    if (q.getGabarito().equalsIgnoreCase(params.get(key))) acertos++;
+                    else if (!params.get(key).isEmpty()) erros++;
+                }
+            }
+        }
+        r.setAcertos(acertos);
+        r.setPontuacao(Math.max(0, acertos - erros));
 
-        Usuario usuarioReal = usuarioRepository.findById(usuarioSessao.getIdUsuario()).orElse(null);
-        Simulado simuladoReal = simuladoRepository.findById(simuladoId).orElse(null);
-
-        if (usuarioReal != null && simuladoReal != null) {
-            Resultado res = new Resultado();
-            res.setUsuario(usuarioReal);
-            res.setSimulado(simuladoReal);
-            res.setRealizadoEm(LocalDateTime.now());
-            res.setTotalQuestoes(8);
-            res = resultadoRepository.save(res);
-
-            int acertos = 0;
-            int erros = 0;
-
-            for (Map.Entry<String, String> entry : params.entrySet()) {
-                if (entry.getKey().startsWith("resposta_")) {
-                    Long idQuestao = Long.parseLong(entry.getKey().replace("resposta_", ""));
-                    String respAluno = entry.getValue();
-                    Questao q = questaoRepository.findById(idQuestao).orElse(null);
-
+        if (u != null) {
+            if (s.getId() == null) s = simuladoRepository.save(s);
+            r.setUsuario(u);
+            r.setSimulado(s);
+            r = resultadoRepository.save(r);
+            
+            // Salva respostas
+            for (String key : params.keySet()) {
+                if (key.startsWith("resposta_")) {
+                    Questao q = questaoRepository.findById(Long.parseLong(key.replace("resposta_", ""))).orElse(null);
                     if (q != null) {
-                        if (q.getGabarito().equalsIgnoreCase(respAluno))
-                            acertos++;
-                        else if (respAluno != null && !respAluno.isEmpty())
-                            erros++;
-
-                        Resposta resposta = new Resposta();
-                        resposta.setQuestao(q);
-                        resposta.setResultado(res);
-                        resposta.setAlternativaEscolhida(respAluno);
-                        respostaRepository.save(resposta);
+                        Resposta resp = new Resposta();
+                        resp.setQuestao(q);
+                        resp.setResultado(r);
+                        resp.setAlternativaEscolhida(params.get(key));
+                        respostaRepository.save(resp);
                     }
                 }
             }
-
-            res.setAcertos(acertos);
-            res.setPontuacao(Math.max(0, acertos - erros));
-            resultadoRepository.save(res);
-
-            model.addAttribute("resultado", res); 
-            model.addAttribute("acertos", acertos); 
-            model.addAttribute("erros", erros); 
-            model.addAttribute("pontuacao", res.getPontuacao()); 
+        } else {
+            r.setId(null);
         }
+
+        model.addAttribute("resultado", r);
+        model.addAttribute("acertos", acertos);
+        model.addAttribute("erros", erros);
+        model.addAttribute("pontuacao", r.getPontuacao());
+        model.addAttribute("isVisitante", u == null);
         return "simulado/resultado";
-    }
-
-    @GetMapping("/resultado/{id}/pdf")
-    public ResponseEntity<byte[]> baixarResultadoPDF(@PathVariable Long id) {
-        try {
-            byte[] pdf = relatorioService.gerarRelatorioPDF(id);
-
-            if (pdf == null) {
-                System.err.println("ERRO: O PDF retornou nulo.");
-                return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-            }
-
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_PDF);
-            headers.setContentDispositionFormData("inline", "resultado_" + id + ".pdf");
-
-            return new ResponseEntity<>(pdf, headers, HttpStatus.OK);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
     }
 
     @GetMapping("/historico")
     public String listarHistorico(Model model, HttpSession session) {
-        Usuario usuarioLogado = (Usuario) session.getAttribute("usuarioLogado");
-
-        if (usuarioLogado == null) {
-            return "redirect:/login"; 
-        }
-
-        List<Resultado> lista = resultadoRepository.findByUsuarioOrderByRealizadoEmDesc(usuarioLogado);
-
-        model.addAttribute("resultados", lista);
+        Usuario u = (Usuario) session.getAttribute("usuarioLogado");
+        if (u == null) return "redirect:/login"; 
+        model.addAttribute("resultados", resultadoRepository.findByUsuarioOrderByRealizadoEmDesc(u));
         return "simulado/historico"; 
+    }
+    
+    @GetMapping("/resultado/{id}/pdf")
+    public ResponseEntity<byte[]> baixarPDF(@PathVariable Long id) {
+        try {
+            return new ResponseEntity<>(relatorioService.gerarRelatorioPDF(id), HttpStatus.OK);
+        } catch (Exception e) { return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR); }
+    }
+
+    // --- AQUI ESTÃO OS MÉTODOS DE EDITAR E EXCLUIR ---
+
+    @GetMapping("/editar/{id}")
+    public String formEditar(@PathVariable Long id, Model model) {
+        System.out.println(">>> CLICOU EM EDITAR O ID: " + id); // OLHE O CONSOLE
+        
+        Resultado r = resultadoRepository.findById(id).orElse(null);
+        if (r == null) {
+            System.out.println(">>> ERRO: ID NÃO ENCONTRADO NO BANCO");
+            return "redirect:/simulados/historico";
+        }
+        
+        model.addAttribute("resultado", r);
+        return "simulado/editar";
+    }
+
+    @PostMapping("/editar/{id}")
+    public String salvarEdicao(@PathVariable Long id, @RequestParam("titulo") String novoTitulo) {
+        System.out.println(">>> SALVANDO NOVO TITULO: " + novoTitulo);
+        Resultado r = resultadoRepository.findById(id).orElse(null);
+        if (r != null) {
+            Simulado s = r.getSimulado();
+            s.setTitulo(novoTitulo);
+            simuladoRepository.save(s);
+        }
+        return "redirect:/simulados/historico";
+    }
+
+    @PostMapping("/excluir/{id}")
+    public String excluir(@PathVariable Long id) {
+        System.out.println(">>> CLICOU EM EXCLUIR O ID: " + id); // OLHE O CONSOLE
+        
+        Resultado r = resultadoRepository.findById(id).orElse(null);
+        if (r != null) {
+            // Tenta apagar respostas primeiro
+            try {
+                List<Resposta> resps = respostaRepository.findByResultado(r);
+                if (resps != null) respostaRepository.deleteAll(resps);
+            } catch (Exception e) {
+                System.out.println(">>> Erro ao apagar respostas: " + e.getMessage());
+            }
+
+            Simulado s = r.getSimulado();
+            resultadoRepository.delete(r);
+            if (s != null) simuladoRepository.delete(s);
+        }
+        return "redirect:/simulados/historico";
     }
 }
